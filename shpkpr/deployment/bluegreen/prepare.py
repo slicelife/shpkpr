@@ -97,13 +97,22 @@ def _is_service_port_defined(app_definition):
     return _get_service_port(app_definition) is not None and 'HAPROXY_DEPLOYMENT_ALT_PORT' in app_definition['labels']
 
 
+def _get_portmappings(app_definition):
+    port_mappings = app_definition['container'].get('portMappings', [])
+
+    if not port_mappings:
+        port_mappings = app_definition['container'].get('docker', {}).get('portMappings', [])
+
+    return port_mappings
+
+
 def _set_current_port(app_definition, service_port):
     """Set the service port on the provided app definition.
 
     This works for both Dockerised and non-Dockerised applications.
     """
     try:
-        port_mappings = app_definition['container']['docker']['portMappings']
+        _get_portmappings(app_definition)
         port_mappings[0]['servicePort'] = service_port
     except (KeyError, IndexError):
         app_definition['ports'][0] = service_port
@@ -131,7 +140,7 @@ def _set_alt_port(app_definition, alt_port):
 
 def _get_current_port(app_definition):
     try:
-        port_mappings = app_definition['container']['docker']['portMappings']
+        port_mappings = _get_portmappings(app_definition)
         service_port = port_mappings[0]['servicePort']
     except (KeyError, IndexError):
         if 'ports' in app_definition:
