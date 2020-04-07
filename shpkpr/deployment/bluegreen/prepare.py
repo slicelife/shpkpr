@@ -112,7 +112,7 @@ def _set_current_port(app_definition, service_port):
     This works for both Dockerised and non-Dockerised applications.
     """
     try:
-        _get_portmappings(app_definition)
+        port_mappings = _get_portmappings(app_definition)
         port_mappings[0]['servicePort'] = service_port
     except (KeyError, IndexError):
         app_definition['ports'][0] = service_port
