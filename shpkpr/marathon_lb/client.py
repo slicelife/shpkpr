@@ -37,7 +37,7 @@ class MarathonLBClient(object):
         starting up, dead, or reloading.
         """
         for instance, pids in self._fetch_pids().items():
-            if not len(pids) == 1:
+            if len(pids) > 2:
                 return True
         return False
 
